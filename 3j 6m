@@ -1,0 +1,45 @@
+// Joystick analog input pins
+const int joyPins[6] = {A0, A1, A2, A3, A4, A5}; // J1X, J1Y, J2X, J2Y, J3X, J3Y
+
+// Motor control pins (PWM and DIR)
+const int pwmPins[6] = {2, 4, 6, 8, 10, 12};
+const int dirPins[6] = {3, 5, 7, 9, 11, 13};
+
+// Wider deadzone range
+const int deadzoneMin = 400;
+const int deadzoneMax = 600;
+
+void setup() {
+  for (int i = 0; i < 6; i++) {
+    pinMode(pwmPins[i], OUTPUT);
+    pinMode(dirPins[i], OUTPUT);
+  }
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  for (int i = 0; i < 6; i++) {
+    int val = analogRead(joyPins[i]);
+
+    int speed = 0;
+    int dir = LOW;
+
+    if (val < deadzoneMin) {
+      speed = map(val, 0, deadzoneMin, 255, 0);  // reverse
+      dir = LOW;
+    } else if (val > deadzoneMax) {
+      speed = map(val, deadzoneMax, 1023, 0, 255);  // forward
+      dir = HIGH;
+    } else {
+      speed = 0;  // inside deadzone
+    }
+
+    digitalWrite(dirPins[i], dir);
+    analogWrite(pwmPins[i], speed);
+  }
+
+  delay(20);
+}
+
+
